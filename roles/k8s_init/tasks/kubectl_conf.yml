@@ -10,17 +10,21 @@
   fetch:
     src: '{{ (kubectl_path.stdout |length > 0) 
       | ternary(kubectl_path.stdout, "/usr/bin/kubectl") }}'
-    dest: files/
+    dest: cache/
     flat: true
 
 - name: apply exe permission for kubectl 
-  local_action: file mode=774 path="{{ playbook_dir }}/files/kubectl"
+  local_action: file mode=774 path="{{ playbook_dir }}/cache/kubectl"
   become: no
   
 - name: copy kube conf
-  fetch: src=/etc/kubernetes/admin.conf dest=files/ flat=true
+  fetch: src=/etc/kubernetes/admin.conf dest=cache/ flat=true
 
-#- name: set kubectl apply command
-#  set_fact: 
-#    kubectl_apply: "{{ 'KUBECONFIG=' + playbook_dir + '/files/admin.conf  ' + playbook_dir + '/files/kubectl apply -f ' }}"
-
+- name: create kubectl wrapper
+  copy:
+    content: |
+      #!/bin/bash
+      KUBECONFIG={{ playbook_dir }}/files/admin.conf  {{ playbook_dir }}/cache/kubectl $@
+    dest: "{{ playbook_dir }}/kctl"
+    force: yes 
+    mode: 750

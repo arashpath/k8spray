@@ -1,6 +1,6 @@
 # This workflow will test Playbook with ANSIBL & LXD
 # vi: set ft=yaml :
-name: k8spray in LxD
+name: k8spray in lxd
 
 on:
   push:

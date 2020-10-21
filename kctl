@@ -1,2 +1,0 @@
-#!/bin/bash
-KUBECONFIG=./cache/admin.conf ./cache/kubectl $@
