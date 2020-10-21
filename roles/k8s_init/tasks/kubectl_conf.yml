@@ -22,8 +22,9 @@
 
 - name: create kubectl wrapper
   copy:
-    content: KUBECONFIG=./cache/admin.conf  ./cache/kubectl $@
+    content: KUBECONFIG={{ playbook_dir }}/cache/admin.conf  {{ playbook_dir }}/cache/kubectl $@
     dest: kctl
     force: yes 
     mode: 750
+  become: no
   delegate_to: localhost
