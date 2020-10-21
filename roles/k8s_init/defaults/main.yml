@@ -1,0 +1,12 @@
+---
+# file: roles/defaults/main.yml
+
+k8s_node_ip: "{{ ip | default(ansible_default_ipv4.address) }}"
+#kubeadm_init: "kubeadm init --nodeip={{ k8s_node_ip }} "
+kubeadm_init: "kubeadm init "
+
+# k8s_cni
+k8s_cni: flannel
+
+#k8s_vip: # virtual ip to be user for kubernetes ha
+

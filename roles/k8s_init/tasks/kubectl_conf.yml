@@ -1,0 +1,26 @@
+
+# Configure kubeclt on ansible machine
+- name: get kubectl path
+  shell: which kubectl
+  register: kubectl_path
+  changed_when: false
+  ignore_errors: true
+
+- name: copy kubectl
+  fetch:
+    src: '{{ (kubectl_path.stdout |length > 0) 
+      | ternary(kubectl_path.stdout, "/usr/bin/kubectl") }}'
+    dest: files/
+    flat: true
+
+- name: apply exe permission for kubectl 
+  local_action: file mode=774 path="{{ playbook_dir }}/files/kubectl"
+  become: no
+  
+- name: copy kube conf
+  fetch: src=/etc/kubernetes/admin.conf dest=files/ flat=true
+
+#- name: set kubectl apply command
+#  set_fact: 
+#    kubectl_apply: "{{ 'KUBECONFIG=' + playbook_dir + '/files/admin.conf  ' + playbook_dir + '/files/kubectl apply -f ' }}"
+

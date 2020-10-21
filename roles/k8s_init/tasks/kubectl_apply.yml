@@ -1,0 +1,12 @@
+# Apply additional maifests for cni, ingress, dashbord etc
+- name: apply {{ k8s_cni }} CNI
+  command: "kubectl apply -f {{ k8s_cni_file }}"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  tags: k8s_cni
+
+- name: apply dashboard
+  command: "kubectl apply -f {{ k8s_dashbord_file }}"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf    
+  tags: k8s_dashboad

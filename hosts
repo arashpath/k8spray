@@ -1,0 +1,9 @@
+k8s-1
+k8s-2
+k8s-3
+
+# For Testing with LXD
+[all:vars]
+ansible_connection=lxd
+# k8s_vip as 10th ip of lxd network
+k8s_vip="{{ (ansible_default_ipv4.network + '/' + ansible_default_ipv4.netmask) | ipaddr(10) | ipaddr('address') }}"

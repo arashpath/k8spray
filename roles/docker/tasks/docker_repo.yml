@@ -1,0 +1,14 @@
+# vi: set ft=ansible :
+---
+# file: roles/docker/tasks/docker_repo.yml
+- debug: msg="using docker's official repo"
+  tags: ['never', 'debug']
+  
+- name: docker repo created
+  yum_repository:
+    name: docker-ce-stable
+    description: Docker CE Stable - $basearch
+    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+    enabled: yes
+    gpgcheck: yes
+    gpgkey: https://download.docker.com/linux/centos/gpg

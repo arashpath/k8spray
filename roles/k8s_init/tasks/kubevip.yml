@@ -1,0 +1,17 @@
+---
+# file: roles/tasks/kube-vip.yml
+- name: parse interfaces
+  set_fact: k8s_vip_interface="{{ item }}"
+  when: ansible_{{item}}.ipv4.address == k8s_node_ip
+  with_items: "{{ ansible_interfaces }}"
+  tags: debug
+
+- name: create vip manifest
+  shell: 
+    cmd: |
+      docker run --network host --rm plndr/kube-vip:0.1.8 kubeadm init \
+      --interface {{ k8s_vip_interface }} \
+      --vip {{ k8s_vip }} \
+      --arp \
+      --leaderElection | tee /etc/kubernetes/manifests/vip.yaml
+    creates: /etc/kubernetes/manifests/vip.yaml

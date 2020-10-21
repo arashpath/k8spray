@@ -1,0 +1,23 @@
+#!/usr/bin/ansible-playbook
+---
+- name: k8s setup
+  hosts: all
+  become: true
+
+  # Create lxd containers for local testing  
+  pre_tasks:
+  - name: Create container when using lxd
+    import_role: name=lxd_inventory
+    when: ansible_connection is defined and ansible_connection == 'lxd'
+  
+  tasks:
+
+  # Install Docker and kubadm
+  - name: install & configure docker
+    import_role: name=docker
+  - name: install kubeadm, kubelet & kubeclt
+    import_role: name=kubeadm
+
+  # bootstrap k8s cluster
+  - name: bootstrap k8s
+    import_role: name=k8s_init

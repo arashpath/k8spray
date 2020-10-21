@@ -1,0 +1,20 @@
+---
+# files: roles/k8s_init/vars/main.yml
+k8s_certs:
+  - ca.crt
+  - ca.key
+  - sa.key
+  - sa.pub
+  - front-proxy-ca.crt
+  - front-proxy-ca.key
+  - etcd/ca.crt
+  - etcd/ca.key
+
+# k8s_vip
+k8s_vip_image: plndr/kube-vip:0.1.8
+
+# dashbord
+k8s_dashbord_file: https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+
+# kubectl
+kubectl_apply: 'KUBECONFIG=/etc/kubernetes/admin.conf kubectl apply -f '

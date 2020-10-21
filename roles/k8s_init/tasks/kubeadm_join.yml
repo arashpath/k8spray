@@ -1,0 +1,43 @@
+# Get required stuff for joining other nodes
+- block:
+  - name: get k8s certs
+    fetch: 
+      src: "/etc/kubernetes/pki/{{ item }}"
+      dest: "cache/certs/{{ item }}"
+      flat: true
+    with_items: "{{ k8s_certs }}"
+  
+  - name: get kubeadm join command
+    command: kubeadm token create --print-join-command
+    register: k8sjoin
+    changed_when: false
+  
+  - name: set k8sjoin command
+    set_fact: kubeadm_join="{{ k8sjoin.stdout }}"
+    delegate_to: "{{ item }}"
+    delegate_facts: True
+    with_items: "{{ groups['all'] }}"
+    when: item != "localhost"
+  run_once: true
+
+- name: create etc/kubernetes dirs
+  file: path=/etc/kubernetes/pki/etcd state=directory
+
+- name: copy certs to all controle plane servers 
+  copy: 
+    src: "cache/certs/{{ item }}" 
+    dest: "/etc/kubernetes/pki/{{ item }}"
+  with_items: "{{ k8s_certs }}"
+
+- name: kubeadm join
+  command: 
+    cmd: "{{ kubeadm_join }} --control-plane"
+    creates: /etc/kubernetes/admin.conf
+
+- import_tasks: kubevip.yml
+  when: k8s_vip is defined
+
+- name: create .kube file
+  file: path=/root/.kube state=directory
+- name: copy kube config
+  copy: src=/etc/kubernetes/admin.conf dest=/root/.kube/config remote_src=yes

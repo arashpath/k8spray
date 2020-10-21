@@ -1,0 +1,36 @@
+---
+# file: k8s_init/tasks/main.yml
+
+- setup: gather_subset=network
+  tags: debug
+
+# Set CNI init options
+- include_vars: "cni_{{ k8s_cni }}.yml"
+  tags: debug
+
+# debug
+- block:
+  - debug: var=k8s_node_ip
+  - debug: var=k8s_vip
+  - debug: var=k8s_cni
+  - debug: var=k8s_cni_file
+  tags: ['never', 'debug']
+
+# init first node
+- import_tasks: kubeadm_init.yml
+  run_once: true
+  tags: kubeadm_init
+
+# apply cni & other manifests
+- import_tasks: kubectl_apply.yml
+  run_once: true
+
+# copy certs and generate join command
+# join nodes
+- import_tasks: kubeadm_join.yml
+  tags: kubeadm_join
+
+# configure kubectl on ansible machine
+- import_tasks: kubectl_conf.yml
+  run_once: true
+  tags: kubectl

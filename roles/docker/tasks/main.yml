@@ -1,0 +1,26 @@
+# vi: set ft=ansible :
+---
+# file: roles/docker/tasks/main.yml
+
+- import_tasks: docker_repo.yml
+  when: use_local_repo is not defined
+  tags: [ 'docker_repo', 'docker_install']
+
+- block:
+  - name: docker packages to be installed
+    debug: var=docker_prerequsits
+  - debug: var=docker_packages
+  tags: ['never', 'debug']
+
+- name: prerequsits installed
+  yum: name="{{ docker_prerequsits }}"
+  tags: docker_install
+
+- name: docker installed
+  yum: name="{{ docker_packages }}"
+  notify: docker restarted
+  tags: docker_install
+
+- name: docker started
+  systemd: name=docker enabled=true state=started
+  tags: docker_install

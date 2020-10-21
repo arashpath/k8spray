@@ -1,0 +1,8 @@
+---
+# file: roles/kubeadm/defaults/main.yml
+#k8s_ver: 1.15.10
+
+k8s_packages:
+- "{% if k8s_ver is defined%}{{ 'kubeadm-' + k8s_ver }}{%else%}{{'kubeadm'}}{%endif%}"
+- "{% if k8s_ver is defined%}{{ 'kubelet-' + k8s_ver }}{%else%}{{'kubelet'}}{%endif%}"
+- "{% if k8s_ver is defined%}{{ 'kubectl-' + k8s_ver }}{%else%}{{'kubectl'}}{%endif%}"

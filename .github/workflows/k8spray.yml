@@ -1,0 +1,26 @@
+# This workflow will test Playbook with ANSIBL & LXD
+# vi: set ft=yaml :
+name: k8spray in LxD
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  k8spray-lxd:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup lxd
+      run: sudo lxd init --auto --storage-backend dir
+    - name: cache lxd image locally 
+      run: 'sudo lxc image copy images:centos/7 local: --copy-aliases >/dev/null 2>&1'
+    - name: install pre-requisits
+      run: sudo apt install python-netaddr
+    - name: run full playbook 
+      run: sudo ./playbook.yml
+    - name: check cluster
+      run: |
+        ./kctl get nodes
+        ./kctl get pods -A

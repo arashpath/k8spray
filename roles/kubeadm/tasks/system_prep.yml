@@ -1,0 +1,41 @@
+---
+# file: roles/kubeadm/tasks/system_prep.yml
+
+- name: check swap
+  setup: filter=ansible_swaptotal_mb
+
+- name: swap disabled
+  command: swapoff -a
+  when: ansible_swaptotal_mb > 0
+  # for lxd swap must be disabled on host
+  # - ansible_connection is defined and ansible_connection != "lxd"
+
+- name: removed swapfile from /etc/fstab
+  mount: name="{{ item }}" fstype=swap state=absent
+  with_items: [ 'swap', 'none' ]
+
+- name: letting iptables see bridged traffic
+  sysctl:
+    name: "{{ item }}"
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+  with_items:
+    - net.bridge.bridge-nf-call-iptables
+    - net.bridge.bridge-nf-call-ip6tables
+    
+# Hacks required to provision K8s v1.15+ in LXC containers
+- name: lxD hacks for running k8s
+  block:
+  - setup: gather_subset=min filter=ansible_kernel
+  - name: copy kernel config to lxd container
+    copy: src="/boot/config-{{ ansible_kernel }}" dest=/boot/
+  - name: lxd hack for /dev/kmsg
+    shell: 
+      cmd: |
+        mknod /dev/kmsg c 1 11
+        chmod +x /etc/rc.d/rc.local
+        echo 'mknod /dev/kmsg c 1 11' >> /etc/rc.d/rc.local
+      creates: /dev/kmsg
+  when: ansible_connection is defined and ansible_connection == 'lxd'

@@ -1,0 +1,14 @@
+---
+# file: roles/kubeadm/tasks/k8s_repo.yml
+- debug: msg="using kubernetes official repo"
+  tags: ['never', 'debug']
+
+- name: kubernetes repo created
+  yum_repository:
+    name: kubernetes
+    description: Kubernetes
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
+    enabled: yes
+    gpgcheck: yes
+#    repo_gpgcheck: yes
+    gpgkey: 'https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg'
