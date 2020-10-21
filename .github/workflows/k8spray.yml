@@ -9,6 +9,7 @@ on:
 jobs:
   k8spray-lxd:
     runs-on: ubuntu-18.04
+    if: "!contains(github.event.head_commit.message, 'skip-ci')"
 
     steps:
     - uses: actions/checkout@v2
