@@ -23,6 +23,7 @@
 - name: create kubectl wrapper
   copy:
     content: KUBECONFIG=./cache/admin.conf  ./cache/kubectl $@
-    dest: ./kctl
+    dest: kctl
     force: yes 
     mode: 750
+  delegate_to: localhost
