@@ -19,6 +19,8 @@ jobs:
       run: 'sudo lxc image copy images:centos/7 local: --copy-aliases >/dev/null 2>&1'
     - name: install pre-requisits
       run: sudo apt install python-netaddr
+    - name: debug play
+      run: sudo ./playbook.yml -t lxd,debug
     - name: run full playbook 
       run: sudo ./playbook.yml -e "pkgs_cache=false"
     - run: |
