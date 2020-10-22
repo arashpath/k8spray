@@ -4,7 +4,7 @@ name: k8spray in lxd
 
 on:
   push:
-    branches: [ main ]
+    branches: [ dev ]
 
 jobs:
   k8spray-lxd:
@@ -21,6 +21,9 @@ jobs:
       run: sudo apt install python-netaddr
     - name: run full playbook 
       run: sudo ./playbook.yml
+    - run: |
+        ls -lrth
+        ls -lrth cache
     - name: check cluster
       run: |
         ./kctl get nodes

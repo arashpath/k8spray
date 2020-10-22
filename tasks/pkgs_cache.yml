@@ -4,7 +4,7 @@
 - name: check if pkgs cache exists
   local_action: stat path=cache/repos.tgz
   become: no
-  register: repostgz
+  register: repo_tar
   tags: [ 'cache_pkgs', 'local_repo' ]
   run_once: true
 
@@ -26,16 +26,16 @@
     when: dl_packages is undefined
   - name: create local repo
     import_tasks: create_yum_repo.yml
-  - name: set pkgs_cache status true
+  - name: set repo_tar status true
     set_fact:
-      pkgs_cache: {stat: { exists: true }}
+      repo_tar: {stat: { exists: true }}
   run_once: true
-  when: repostgz is defined and not repostgz.stat.exists
+  when: repo_tar is defined and not repo_tar.stat.exists
   tags: cache_pkgs
 
 - name: user local repo
   import_tasks: use_yum_repo.yml
-  when: pkgs_cache.stat.exists
+  when: repo_tar.stat.exists
   tags: local_repo
 
 - name: clean repo data
