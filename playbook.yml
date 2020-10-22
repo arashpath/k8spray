@@ -4,13 +4,19 @@
   hosts: all
   become: true
 
+  vars:
+    pkgs_cache: true
+
   # Create lxd containers for local testing  
   pre_tasks:
   - name: Create container when using lxd
     import_role: name=lxd_inventory
     when: ansible_connection is defined and ansible_connection == 'lxd'
-  
+
   tasks:
+  # local yum cache
+  - import_tasks: tasks/pkgs_cache.yml
+    when: pkgs_cache is defined and pkgs_cache == true
 
   # Install Docker and kubadm
   - name: install & configure docker

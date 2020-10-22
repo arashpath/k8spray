@@ -1,0 +1,32 @@
+---
+# file: tasks/create_yum_repo.yml
+
+- name: repo folder created
+  file:
+    state: directory
+    path: /opt/repos
+
+- name: download all required packages
+  yum:
+    name: "{{ dl_packages }}"
+    download_only: yes
+    download_dir: /opt/repos
+
+- name: install createrepo packages
+  yum: name=createrepo
+
+- name: createrepo
+  command:
+    cmd: createrepo /opt/repos
+    creates: /opt/repos/repodata/repomd.xml
+
+- name: archive repo
+  archive:
+    path: /opt/repos
+    dest: /opt/repos.tgz
+
+- name: get repos.tgz
+  fetch:
+    dest: cache/
+    src: /opt/repos.tgz
+    flat: yes

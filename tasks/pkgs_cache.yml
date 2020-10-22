@@ -1,0 +1,46 @@
+---
+# file: tasks/pkgs_cache.yml
+
+- name: check if pkgs cache exists
+  local_action: stat path=cache/repos.tgz
+  become: no
+  register: repostgz
+  tags: [ 'cache_pkgs', 'local_repo' ]
+  run_once: true
+
+- name: Create Repo when not present
+  block:
+  # Ensure required repos are present
+  - name: create docker repo
+    import_role:
+      name: docker
+      tasks_from: docker_repo.yml
+  - name: create k8s repo
+    import_role:
+      name: kubeadm
+      tasks_from: k8s_repo.yml
+  # set packages to be downloaded
+  - name: set packages for download
+    set_fact:
+      dl_packages: "{{ docker_prerequsits + docker_packages + k8s_packages }}"
+    when: dl_packages is undefined
+  - name: create local repo
+    import_tasks: create_yum_repo.yml
+  - name: set pkgs_cache status true
+    set_fact:
+      pkgs_cache: {stat: { exists: true }}
+  run_once: true
+  when: repostgz is defined and not repostgz.stat.exists
+  tags: cache_pkgs
+
+- name: user local repo
+  import_tasks: use_yum_repo.yml
+  when: pkgs_cache.stat.exists
+  tags: local_repo
+
+- name: clean repo data
+  block:
+  - yum_repository: name=local-repo state=absent
+  - file: path=/opt/repos/repodata state=absent
+  - shell: mv /etc/yum.repos.d/repobkp/CentOS-* /etc/yum.repos.d/
+  tags: [ 'clean_repo', 'never' ]

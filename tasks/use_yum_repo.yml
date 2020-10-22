@@ -1,0 +1,35 @@
+---
+# tasks/use_yum_repo.yml
+
+- name: local repo copied
+  unarchive:
+    src: cache/repos.tgz
+    dest: /opt/
+    creates: /opt/repos/repodata/repomd.xml
+
+- name: local repo added
+  yum_repository:
+    name: local-repo
+    description: Local Repo
+    baseurl: file:///opt/repos
+    enabled: yes
+    gpgcheck: no
+
+- name: set to use local cache
+  set_fact:
+    use_local_repo: true
+
+- name: disable centos default repos
+  shell: 
+    cmd: mkdir -p /etc/yum.repos.d/repobkp ; mv /etc/yum.repos.d/CentOS-* /etc/yum.repos.d/repobkp
+    warn: false
+    removes: /etc/yum.repos.d/CentOS-*
+
+- name: disable other repos too
+  yum_repository: 
+    name: "{{ item }}"
+    enabled: no
+    state: absent
+  with_items:
+  - docker-ce-stable
+  - kubernetes

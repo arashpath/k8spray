@@ -25,6 +25,6 @@
     content: KUBECONFIG={{ playbook_dir }}/cache/admin.conf  {{ playbook_dir }}/cache/kubectl $@
     dest: kctl
     force: yes 
-    mode: 750
+    mode: 0755
   become: no
   delegate_to: localhost
